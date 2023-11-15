@@ -6,13 +6,14 @@ import (
 )
 
 func main() {
-	const port = "8080"
+	const port = "8000"
 	const filePathRoot = "."
 
 	mux := http.NewServeMux()
-	corsMux := middlewareCors(mux) // Cross-Origin-Resource-Sharing
+	mux.Handle("/app/", http.StripPrefix("/app", http.FileServer(http.Dir(filePathRoot))))
+	mux.HandleFunc("/healthz", handlerReadiness)
 
-	mux.Handle("/", http.FileServer(http.Dir(filePathRoot)))
+	corsMux := middlewareCors(mux) // Cross-Origin-Resource-Sharing
 
 	srv := &http.Server{
 		Addr:    ":" + port,
@@ -23,15 +24,8 @@ func main() {
 	log.Fatal(srv.ListenAndServe())
 }
 
-func middlewareCors(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE")
-		w.Header().Set("Access-Control-Allow-Headers", "*")
-		if r.Method == "OPTIONS" {
-			w.WriteHeader(http.StatusOK)
-			return
-		}
-		next.ServeHTTP(w, r)
-	})
+func handlerReadiness(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Content-Type:", "text/plain; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(http.StatusText(http.StatusOK)))
 }
