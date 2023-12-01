@@ -38,8 +38,8 @@ func (db *DB) CreateChirp(body string) (Chirp, error) {
 
 	id := len(dbStructure.Chirps) + 1
 	chirp := Chirp{
-		Body: body,
 		ID:   id,
+		Body: body,
 	}
 	dbStructure.Chirps[id] = chirp
 
@@ -61,6 +61,19 @@ func (db *DB) GetChirps() ([]Chirp, error) {
 		chirps = append(chirps, chirp)
 	}
 	return chirps, nil
+}
+
+func (db *DB) GetChirp(id int) (Chirp, error) {
+	dbStructure, err := db.loadDB()
+	if err != nil {
+		return Chirp{}, err
+	}
+
+	chirp, ok := dbStructure.Chirps[id]
+	if !ok {
+		return Chirp{}, os.ErrNotExist
+	}
+	return chirp, nil
 }
 
 func (db *DB) createDB() error {
