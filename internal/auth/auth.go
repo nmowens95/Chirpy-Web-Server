@@ -59,6 +59,7 @@ func ValidateJWT(tokenString, tokenSecret string) (string, error) {
 }
 
 func GetBearerToken(headers http.Header) (string, error) {
+	// Authorization: Bearer <token>
 	authHeader := headers.Get("Authorization")
 	if authHeader == "" {
 		return "", ErrNoAuthHeaderIncluded
