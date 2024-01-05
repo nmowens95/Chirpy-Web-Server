@@ -60,6 +60,8 @@ func main() {
 	apiRouter.Get("/healthz", handlerReadiness)
 	apiRouter.Get("/reset", apiCfg.handlerReset)
 
+	apiRouter.Post("/polka/webhooks", apiCfg.handlerWebhook)
+
 	apiRouter.Post("/revoke", apiCfg.handlerRevoke)
 	apiRouter.Post("/refresh", apiCfg.handlerRefresh)
 	apiRouter.Post("/login", apiCfg.handlerLogin)
