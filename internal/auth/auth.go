@@ -22,7 +22,7 @@ const (
 )
 
 // ErrNoAuthHeaderIncluded -
-var ErrNoAuthHeaderIncluded = errors.New("not auth header included in request")
+var ErrNoAuthHeaderIncluded = errors.New("no auth header included in request")
 
 // HashPassword -
 func HashPassword(password string) (string, error) {
@@ -129,10 +129,12 @@ func ValidateJWT(tokenString, tokenSecret string) (string, error) {
 
 // GetBearerToken -
 func GetBearerToken(headers http.Header) (string, error) {
+	// Authorization: Bearer <token>
 	authHeader := headers.Get("Authorization")
 	if authHeader == "" {
 		return "", ErrNoAuthHeaderIncluded
 	}
+	// split into an array ["Bearer", "<key/token>"]
 	splitAuth := strings.Split(authHeader, " ")
 	if len(splitAuth) < 2 || splitAuth[0] != "Bearer" {
 		return "", errors.New("malformed authorization header")
@@ -140,3 +142,20 @@ func GetBearerToken(headers http.Header) (string, error) {
 
 	return splitAuth[1], nil
 }
+
+// GetAPIKey
+func GetAPIKey(headers http.Header) (string, error) {
+	authHeader := headers.Get("Authorization")
+	if authHeader == "" {
+		return "", ErrNoAuthHeaderIncluded
+	}
+	splitAuth := strings.Split(authHeader, " ")
+	if len(splitAuth) < 2 || splitAuth[0] != "ApiKey" {
+		return "", errors.New("malformed authorization header")
+	}
+
+	return splitAuth[1], nil
+}
+
+// Before split Ex: "ApiKey abcdefg123456789"
+// After split Ex: ["ApiKey", "abcdefg123456789"]
